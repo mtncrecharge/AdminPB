@@ -280,14 +280,16 @@ function parseCSV(txt){
 // ── Parse each tab ──
 function parseReplenish(rows){
   return rows.slice(1).filter(r=>r[0]&&r[0].trim()).map(r=>{
-    const g=i=>r[i]!=null?String(r[i]).trim():'';
+    const g=i=>(r[i]!=null?String(r[i]).replace(/[\r\n\t]/g,'').trim():'');
+    const id=g(0);
     return{
-      id:g(0),name:g(1),type:g(2),conn:g(3).toLowerCase()==='true',
+      id,name:g(1),type:g(2),conn:g(3).toLowerCase()==='true',
       slots:parseInt(g(4))||0,pbPct:g(5),area:g(6),
       lat:parseFloat(g(7))||null,lng:parseFloat(g(8))||null,
       charging:parseInt(g(9))||0,ready:parseInt(g(10))||0,
       empty:parseInt(g(11))||0,lock:parseInt(g(12))||0,
-      replenish:parseInt(g(13))||0,ops:g(14)
+      replenish:parseInt(g(13))||0,
+      ops:id?`https://ops.recharge.sh/terminal/${id}`:''
     };
   }).filter(r=>r.id);
 }
@@ -295,13 +297,15 @@ function parseReplenish(rows){
 function parsePickup(rows){
   return rows.slice(1).filter(r=>r[0]&&r[0].trim()).map(r=>{
     const g=i=>(r[i]!=null?String(r[i]).replace(/[\r\n\t]/g,'').trim():'');
+    const id=g(0);
     return{
-      id:g(0),name:g(1),type:g(2),conn:g(3).toLowerCase()==='true',
+      id,name:g(1),type:g(2),conn:g(3).toLowerCase()==='true',
       slots:parseInt(g(4))||0,pbPct:g(5),area:g(6),
       lat:parseFloat(g(7))||null,lng:parseFloat(g(8))||null,
       empty:parseInt(g(9))||0,lock:parseInt(g(10))||0,
       currentPb:parseInt(g(11))||0,ideal:parseInt(g(12))||0,
-      pickup:parseInt(g(13))||0,ops:g(14)
+      pickup:parseInt(g(13))||0,
+      ops:id?`https://ops.recharge.sh/terminal/${id}`:''
     };
   }).filter(r=>r.id);
 }
@@ -309,26 +313,14 @@ function parsePickup(rows){
 function parsePBLock(rows){
   return rows.slice(1).filter(r=>r[0]&&r[0].trim()).map(r=>{
     const g=i=>(r[i]!=null?String(r[i]).replace(/[\r\n\t]/g,'').trim():'');
+    const id=g(0);
     return{
-      id:g(0),name:g(1),type:g(2),conn:g(3).toLowerCase()==='true',
+      id,name:g(1),type:g(2),conn:g(3).toLowerCase()==='true',
       slots:parseInt(g(4))||0,pbPct:g(5),area:g(6),
       lat:parseFloat(g(7))||null,lng:parseFloat(g(8))||null,
       charging:parseInt(g(9))||0,empty:parseInt(g(10))||0,
-      lock:parseInt(g(11))||0,ops:g(12)
-    };
-  }).filter(r=>r.id);
-}
-
-function parseReplenish(rows){
-  return rows.slice(1).filter(r=>r[0]&&r[0].trim()).map(r=>{
-    const g=i=>(r[i]!=null?String(r[i]).replace(/[\r\n\t]/g,'').trim():'');
-    return{
-      id:g(0),name:g(1),type:g(2),conn:g(3).toLowerCase()==='true',
-      slots:parseInt(g(4))||0,pbPct:g(5),area:g(6),
-      lat:parseFloat(g(7))||null,lng:parseFloat(g(8))||null,
-      charging:parseInt(g(9))||0,ready:parseInt(g(10))||0,
-      empty:parseInt(g(11))||0,lock:parseInt(g(12))||0,
-      replenish:parseInt(g(13))||0,ops:g(14)
+      lock:parseInt(g(11))||0,
+      ops:id?`https://ops.recharge.sh/terminal/${id}`:''
     };
   }).filter(r=>r.id);
 }
