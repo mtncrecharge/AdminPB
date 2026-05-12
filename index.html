@@ -167,6 +167,11 @@ tr.det-row td{padding:0}
     <option value="true">Online</option>
     <option value="false">Offline</option>
   </select>
+  <select id="fType" onchange="applyFilter()">
+    <option value="">Semua Tipe</option>
+  </select>
+</div>
+<div class="frow">
   <select id="fArea" onchange="applyFilter()">
     <option value="">Semua Area</option>
   </select>
@@ -348,6 +353,7 @@ async function loadAllData(force=false){
     }
     DATA[ACTIVE_TAB] = newData;
     fillAreaFilter();
+    fillTypeFilter();
     applyFilter();
   }catch(e){ console.error(e); }
   document.getElementById('htime').style.color='var(--text)';
@@ -362,17 +368,28 @@ function switchTab(tab){
   openDetail = null;
   mapInitialFit = false;
   fillAreaFilter();
+  fillTypeFilter();
   if(DATA[tab].length===0) loadAllData(true);
   else applyFilter();
 }
 
 // ── Fill area filter ──
 function fillAreaFilter(){
-  const data = DATA[ACTIVE_TAB];
+  const data=DATA[ACTIVE_TAB];
   const areas=[...new Set(data.map(r=>r.area).filter(Boolean))].sort();
   const sel=document.getElementById('fArea');
   const cur=sel.value;
   sel.innerHTML='<option value="">Semua Area</option>'+areas.map(a=>`<option value="${a}">${a}</option>`).join('');
+  sel.value=cur;
+}
+
+// ── Fill type filter ──
+function fillTypeFilter(){
+  const data=DATA[ACTIVE_TAB];
+  const types=[...new Set(data.map(r=>r.type).filter(Boolean))].sort();
+  const sel=document.getElementById('fType');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">Semua Tipe</option>'+types.map(t=>`<option value="${t}">${t}</option>`).join('');
   sel.value=cur;
 }
 
@@ -396,13 +413,15 @@ function applyFilter(){
   const s=document.getElementById('srch').value.toLowerCase();
   const conn=document.getElementById('fConn').value;
   const area=document.getElementById('fArea').value;
+  const type=document.getElementById('fType').value;
   const data=DATA[ACTIVE_TAB];
 
   FILTERED=data.filter(r=>{
     const ms=!s||r.name.toLowerCase().includes(s)||r.id.toLowerCase().includes(s)||r.area.toLowerCase().includes(s);
     const mc=conn===''||(conn==='true'&&r.conn)||(conn==='false'&&!r.conn);
     const ma=!area||r.area===area;
-    return ms&&mc&&ma;
+    const mt=!type||r.type===type;
+    return ms&&mc&&ma&&mt;
   });
 
   // Summary
@@ -575,7 +594,7 @@ function renderMap(){
       <div class="pu-row">Koneksi: <span>${r.conn?'🟢 Online':'🔴 Offline'}</span></div>
       ${extra}
       <div class="pu-row">Area: <span>${r.area||'-'}</span></div>
-      ${r.ops?`<div class="pu-btns"><a href="${r.ops}" target="_blank" class="pu-btn" style="background:rgba(0,230,118,0.2);color:#00e676">⚡ Ops</a></div>`:''}
+      ${r.ops?`<div class="pu-btns"><button onclick="window.open(this.dataset.url,'_blank')" data-url="${(r.ops||'').replace(/"/g,'&quot;')}" class="pu-btn" style="background:rgba(0,230,118,0.2);color:#00e676;border:none;cursor:pointer">⚡ Ops</button></div>`:''}
     `,{maxWidth:220}).addTo(newLayer);
   });
   map.removeLayer(markerLayer);
